@@ -1,12 +1,9 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-mongoose.connect(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
-const db = mongoose.connection;
+const Sales = require('./schemas/Sales');
 
 exports.handler = (event, context, callback) => {
 
-  // "event" has information about the path, body, headers, etc. of the request
-  console.log('event', event)
   switch (event.httpMethod) {
     case 'GET':
       if (!!event.queryStringParameters.id) {
@@ -23,8 +20,11 @@ exports.handler = (event, context, callback) => {
 }
 
 function index(event, context, callback) {
-
+  mongoose.connect(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+  const db = mongoose.connection;
+  console.info('*********METODO INDEX*******');
   db.on('error', function () {
+    console.info('*********ON ERROR*******');
     return callback(null, {
       statusCode: 400,
       body: JSON.stringify({
@@ -33,11 +33,9 @@ function index(event, context, callback) {
     })
   });
   db.once('open', async function () {
-    const Schema = mongoose.Schema;
-    const Order = mongoose.model('sales', Schema({}));
-
-    const items = await Order.find().limit(10);
-
+    console.info('*********ON OPEN*******');
+    const items = await Sales.find().limit(10);
+    await db.close();
     return callback(null, {
       statusCode: 200,
       body: JSON.stringify(items)
@@ -46,6 +44,7 @@ function index(event, context, callback) {
 }
 
 function show(event, context, callback) {
+
   return callback(null, {
     statusCode: 200,
     body: JSON.stringify({

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "dotenv": "^8.2.0",
-    "mongoose": "^5.10.2"
+    "mongoose": "^5.10.2",
+    "saslprep": "^1.0.3"
   }
 }
