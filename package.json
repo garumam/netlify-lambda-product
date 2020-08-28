@@ -4,19 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:server": "netlify-lambda serve functions",
-    "build": "netlify-lambda build functions",
+    "start:server": "netlify-lambda serve functions -c ./webpack.functions.js",
+    "build": "netlify-lambda build functions -c ./webpack.functions.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "netlify-lambda": "^2.0.1"
+    "netlify-lambda": "^2.0.1",
+    "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
     "mongoose": "^5.10.2",
-    "saslprep": "^1.0.3"
+    "saslprep": "^1.0.1"
   }
 }
