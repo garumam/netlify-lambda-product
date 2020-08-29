@@ -2,7 +2,6 @@
   "name": "e-commerce-serverless",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "start:server": "netlify-lambda serve functions -c ./webpack.functions.js",
     "build": "netlify-lambda build functions -c ./webpack.functions.js",
