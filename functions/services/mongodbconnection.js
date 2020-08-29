@@ -1,10 +1,6 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const productSchema = require('../schemas/Products');
 
-module.exports = async function dbConnection() {
-  const conn = await mongoose.createConnection(process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+module.exports = async function dbConnection(db) {
+  const conn = await db.connection();
 
-  conn.model('Products', productSchema);
   return conn;
 }

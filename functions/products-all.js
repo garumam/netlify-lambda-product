@@ -1,11 +1,9 @@
 const dbConnection = require('./services/mongodbconnection');
+const ProductDB = require('./ProductContext/database/ProductDB');
 
 let conn = null;
 
 exports.handler = async (event, context, callback) => {
-  console.info('EVENT:', event);
-  console.info('*******************************');
-  console.info('CONTEXT:', context);
   context.callbackWaitsForEmptyEventLoop = false;
 
   if (event.httpMethod !== 'GET') {
@@ -17,7 +15,7 @@ exports.handler = async (event, context, callback) => {
 
   try {
     if (conn == null) {
-      conn = await dbConnection();
+      conn = await dbConnection(new ProductDB());
     }
 
     const Products = conn.model('Products');
