@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const DBAbstract = require('./DBAbstract');
 const productSchema = require('../schemas/Products');
 
-module.exports = class ProductDB extends DBAbstract {
+module.exports = class MongoDB extends DBAbstract {
   constructor() {
     super();
   }

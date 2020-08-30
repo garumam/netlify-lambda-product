@@ -1,11 +1,6 @@
-const dbConnection = require('./ProductContext/database');
-const MongoDB = require('./ProductContext/database/MongoDB');
 const HC = require('./utils/http-code');
 
-let conn = null;
-
 exports.handler = async (event, context, callback) => {
-  context.callbackWaitsForEmptyEventLoop = false;
 
   if (event.httpMethod !== 'GET') {
     return {
@@ -15,19 +10,11 @@ exports.handler = async (event, context, callback) => {
   }
 
   try {
-    if (conn == null) {
-      conn = await dbConnection(MongoDB);
-    }
-
-    const Products = conn.model('Products');
-
-    const products = await Products.find({
-      isActive: true
-    }).limit(10);
+    const status = ['pending', 'approved', 'disapproved'];
 
     return {
       statusCode: HC.OK.GENERIC,
-      body: JSON.stringify({ products })
+      body: JSON.stringify({ status: status[Math.round(Math.random() * 2)] })
     }
   } catch (err) {
     return {

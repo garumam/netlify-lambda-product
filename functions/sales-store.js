@@ -1,8 +1,9 @@
-const Op = require('sequelize').Op;
 const db = require('./SaleContext/database');
 const Sale = require('./SaleContext/models/Sale');
 const Product = require('./SaleContext/models/Product');
 const Payment = require('./SaleContext/models/Payment');
+const api = require('./services/api');
+const HC = require('./utils/http-code');
 
 let conn = null;
 
@@ -11,7 +12,7 @@ exports.handler = async (event, context, callback) => {
 
   if (event.httpMethod !== 'POST') {
     return {
-      statusCode: 404,
+      statusCode: HC.ERROR.NOTFOUND,
       body: JSON.stringify({ error: 'Not Found' })
     }
   }
@@ -27,7 +28,7 @@ exports.handler = async (event, context, callback) => {
 
     if (!data.products || !Array.isArray(data.products)) {
       return {
-        statusCode: 400,
+        statusCode: HC.ERROR.BADREQUEST,
         body: JSON.stringify({ error: "Array of 'products' is required on body" })
       }
     }
@@ -43,23 +44,33 @@ exports.handler = async (event, context, callback) => {
       const products = await Product.findAll(
         {
           where: {
-            name: {
-              [Op.iLike]: product.name
-            },
+            code: product.code,
             sale_id: null
           },
-          limit: product.qtd,
-          raw: true
-        },
-        { transaction: t }
+          raw: true,
+          transaction: t
+        }
       );
+
+      if (products.length < product.qtd) {
+        await t.rollback();
+        return {
+          statusCode: HC.ERROR.NOTACCEPTABLE,
+          body: JSON.stringify({
+            error:
+              `${product.name || 'Not Available'} - qtd required: ${product.qtd} but available only: ${products.length}`
+          })
+        }
+      }
+
+      const productsToReserve = products.slice(0, product.qtd);
 
       const [numberOfUpdatedRows] = await Product.update(
         { sale_id: sale.id },
         {
           transaction: t,
           where: {
-            id: products.map(p => p.id),
+            id: productsToReserve.map(p => p.id),
             sale_id: null
           }
         }
@@ -68,15 +79,17 @@ exports.handler = async (event, context, callback) => {
       if (numberOfUpdatedRows < product.qtd) {
         await t.rollback();
         return {
-          statusCode: 400,
+          statusCode: HC.ERROR.NOTACCEPTABLE,
           body: JSON.stringify({
             error:
-              `${product.name} - qtd required: ${product.qtd} but available only: ${numberOfUpdatedRows}`
+              `${products[0].name} - qtd required: ${product.qtd} but available only: ${numberOfUpdatedRows}`
           })
         }
       }
 
-      productsArray = [...productsArray, ...products];
+      product.qtd = products.length - product.qtd;
+
+      productsArray = [...productsArray, ...productsToReserve];
     }
 
     const total_price = productsArray.reduce((prev, current) => {
@@ -89,26 +102,47 @@ exports.handler = async (event, context, callback) => {
 
     await sale.save({ transaction: t });
 
-    const payment = await Payment.create({
-      sale_id: sale.id
+    const res = await api.get('/.netlify/functions/payment-store');
+
+    await Payment.create({
+      sale_id: sale.id,
+      status: res.data.status
     }, { transaction: t });
 
-    //lembrar de fazer um request para o outro contexto de payment
-    // passando o payment do console abaixo
-    console.log(payment.get());
+    if (res.data.status === 'disapproved') {
+
+      await Product.bulkCreate(
+        productsArray.map(p => ({
+          name: p.name,
+          price: p.price,
+          code: p.code
+        })),
+        { transaction: t }
+      );
+
+    } else {
+
+      //REQUEST PARA ATUALIZAR A QTD NO CONTEXTO DE PRODUTO (sincrono)
+      await Promise.all(
+        data.products.map(
+          p => (
+            api.put('/.netlify/functions/products-store', { code: p.code, qtd: p.qtd })
+          ))
+      );
+
+    }
 
     await t.commit();
     return {
-      statusCode: 201,
+      statusCode: HC.OK.ACCEPTED,
       body: JSON.stringify({
         message: 'Request in process'
       })
     }
   } catch (err) {
     await t.rollback();
-    console.error(err.message);
     return {
-      statusCode: 400,
+      statusCode: HC.ERROR.INTERNALERROR,
       body: JSON.stringify({ error: 'Something went wrong' })
     }
   }

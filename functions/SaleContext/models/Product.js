@@ -10,6 +10,7 @@ class Product extends Sequelize.Model {
           primaryKey: true
         },
         name: Sequelize.STRING,
+        code: Sequelize.STRING,
         price: Sequelize.DECIMAL(10, 2),
         sale_id: Sequelize.UUID
       },

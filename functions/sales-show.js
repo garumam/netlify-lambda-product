@@ -1,5 +1,6 @@
 const db = require('./SaleContext/database');
 const Sale = require('./SaleContext/models/Sale');
+const HC = require('./utils/http-code');
 
 let conn = null;
 
@@ -10,7 +11,7 @@ exports.handler = async (event, context, callback) => {
 
   if (event.httpMethod !== 'GET' || !id) {
     return {
-      statusCode: 404,
+      statusCode: HC.ERROR.NOTFOUND,
       body: JSON.stringify({ error: 'Not Found' })
     }
   }
@@ -32,29 +33,13 @@ exports.handler = async (event, context, callback) => {
     });
 
     return {
-      statusCode: 200,
+      statusCode: HC.OK.GENERIC,
       body: JSON.stringify({ sale })
     }
   } catch (err) {
-    console.error(err.message);
     return {
-      statusCode: 400,
+      statusCode: HC.ERROR.INTERNALERROR,
       body: JSON.stringify({ error: 'Something went wrong' })
     }
   }
 }
-
-
-    // await Payment.create({
-    //   sale_id: sales[0].id
-    // });
-
-    // const product = await Product.create({
-    //   name: 'produto 1',
-    //   price: 255.50,
-    //   sale_id: sale[0].id
-    // });
-
-    //const saleWithProducts = await sale[0].getProducts();
-
-    // const saleWithPayment = await sales[0].getPayment();

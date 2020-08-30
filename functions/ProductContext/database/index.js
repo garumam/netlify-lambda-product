@@ -1,6 +1,6 @@
 
 module.exports = async function dbConnection(db) {
-  const conn = await db.connection();
+  const conn = await (new db()).connection();
 
   return conn;
 }

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const dbConnection = require('./ProductContext/database');
 const MongoDB = require('./ProductContext/database/MongoDB');
 const HC = require('./utils/http-code');
@@ -7,7 +8,7 @@ let conn = null;
 exports.handler = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
-  if (event.httpMethod !== 'GET') {
+  if (event.httpMethod !== 'PUT') {
     return {
       statusCode: HC.ERROR.NOTFOUND,
       body: JSON.stringify({ error: 'Not Found' })
@@ -15,19 +16,27 @@ exports.handler = async (event, context, callback) => {
   }
 
   try {
+
     if (conn == null) {
       conn = await dbConnection(MongoDB);
     }
 
+    const body = JSON.parse(event.body);
+
     const Products = conn.model('Products');
 
-    const products = await Products.find({
-      isActive: true
-    }).limit(10);
+    const query = { _id: body.code },
+      options = { upsert: true, new: true, setDefaultsOnInsert: true };
+
+    if (!query._id) {
+      query._id = new mongoose.mongo.ObjectID();
+    }
+
+    const product = await Products.findOneAndUpdate(query, body, options);
 
     return {
-      statusCode: HC.OK.GENERIC,
-      body: JSON.stringify({ products })
+      statusCode: HC.OK.CREATED,
+      body: JSON.stringify({ code: product._id })
     }
   } catch (err) {
     return {

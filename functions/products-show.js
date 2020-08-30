@@ -1,5 +1,6 @@
-const dbConnection = require('./services/mongodbconnection');
-const ProductDB = require('./ProductContext/database/ProductDB');
+const dbConnection = require('./ProductContext/database');
+const MongoDB = require('./ProductContext/database/MongoDB');
+const HC = require('./utils/http-code');
 
 let conn = null;
 
@@ -10,29 +11,27 @@ exports.handler = async (event, context, callback) => {
 
   if (event.httpMethod !== 'GET' || !id) {
     return {
-      statusCode: 404,
+      statusCode: HC.ERROR.NOTFOUND,
       body: JSON.stringify({ error: 'Not Found' })
     }
   }
 
   try {
     if (conn == null) {
-      conn = await dbConnection(new ProductDB());
+      conn = await dbConnection(MongoDB);
     }
 
     const Products = conn.model('Products');
 
-
     const product = await Products.findById(id);
 
     return {
-      statusCode: 200,
+      statusCode: HC.OK.GENERIC,
       body: JSON.stringify({ product })
     }
   } catch (err) {
-    console.error(err.message);
     return {
-      statusCode: 400,
+      statusCode: HC.ERROR.INTERNALERROR,
       body: JSON.stringify({ error: 'Something went wrong' })
     }
   }

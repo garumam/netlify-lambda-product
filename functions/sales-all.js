@@ -1,5 +1,6 @@
 const db = require('./SaleContext/database');
 const Sale = require('./SaleContext/models/Sale');
+const HC = require('./utils/http-code');
 
 let conn = null;
 
@@ -8,7 +9,7 @@ exports.handler = async (event, context, callback) => {
 
   if (event.httpMethod !== 'GET') {
     return {
-      statusCode: 404,
+      statusCode: HC.ERROR.NOTFOUND,
       body: JSON.stringify({ error: 'Not Found' })
     }
   }
@@ -21,13 +22,12 @@ exports.handler = async (event, context, callback) => {
     const sales = await Sale.findAll();
 
     return {
-      statusCode: 200,
+      statusCode: HC.OK.GENERIC,
       body: JSON.stringify({ sales })
     }
   } catch (err) {
-    console.error(err.message);
     return {
-      statusCode: 400,
+      statusCode: HC.ERROR.INTERNALERROR,
       body: JSON.stringify({ error: 'Something went wrong' })
     }
   }
