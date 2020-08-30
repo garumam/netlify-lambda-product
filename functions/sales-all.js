@@ -1,14 +1,12 @@
-const dbConnection = require('./services/mongodbconnection');
-const ProductDB = require('./ProductContext/database/ProductDB');
+const db = require('./SaleContext/database');
+const Sale = require('./SaleContext/models/Sale');
 
 let conn = null;
 
 exports.handler = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
-  const id = event.queryStringParameters.id
-
-  if (event.httpMethod !== 'GET' || !id) {
+  if (event.httpMethod !== 'GET') {
     return {
       statusCode: 404,
       body: JSON.stringify({ error: 'Not Found' })
@@ -17,17 +15,14 @@ exports.handler = async (event, context, callback) => {
 
   try {
     if (conn == null) {
-      conn = await dbConnection(new ProductDB());
+      conn = db.connection;
     }
 
-    const Products = conn.model('Products');
-
-
-    const product = await Products.findById(id);
+    const sales = await Sale.findAll();
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ product })
+      body: JSON.stringify({ sales })
     }
   } catch (err) {
     console.error(err.message);

@@ -12,12 +12,16 @@
   "license": "ISC",
   "devDependencies": {
     "netlify-lambda": "^2.0.1",
+    "sequelize-cli": "^6.2.0",
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
     "axios": "^0.20.0",
     "dotenv": "^8.2.0",
     "mongoose": "^5.10.2",
-    "saslprep": "^1.0.1"
+    "pg": "^8.3.3",
+    "pg-hstore": "^2.3.3",
+    "saslprep": "^1.0.1",
+    "sequelize": "^6.3.4"
   }
 }

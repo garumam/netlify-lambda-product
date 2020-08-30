@@ -1,28 +1,27 @@
-// import Sequelize from 'sequelize';
+const Sequelize = require('sequelize');
 
-// import User from '../app/models/User';
-// import Ddd from '../app/models/Ddd';
-// import Call from '../app/models/Call';
-// import Plan from '../app/models/Plan';
+const Sale = require('../models/Sale');
+const Product = require('../models/Product');
+const Payment = require('../models/Payment');
 
-// import databaseConfig from '../config/database';
+const databaseConfig = require('../config/database');
 
-// const models = [User, Ddd, Call, Plan];
+const models = [Sale, Product, Payment];
 
-// class Database {
-//   constructor() {
-//     this.init();
-//   }
+class Database {
+  constructor() {
+    this.init();
+  }
 
-//   init() {
-//     this.connection = new Sequelize(databaseConfig);
+  init() {
+    this.connection = new Sequelize(databaseConfig.url, databaseConfig);
 
-//     models
-//       .map((model) => model.init(this.connection))
-//       .map(
-//         (model) => model.associate && model.associate(this.connection.models)
-//       );
-//   }
-// }
+    models
+      .map((model) => model.init(this.connection))
+      .map(
+        (model) => model.associate && model.associate(this.connection.models)
+      );
+  }
+}
 
-// export default Database();
+module.exports = new Database();
