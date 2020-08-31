@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../services/api';
 // import { Container } from './styles';
 
@@ -16,6 +17,7 @@ function ProductsList() {
   return (
     <div>
       <h1>Lista de produtos</h1>
+      <Link to="/product">Produto</Link>
       <ul>
         {products.map((product) => (
           <li key={product.id}>{product.name}</li>

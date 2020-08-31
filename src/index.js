@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ProductsList from './pages/ProductsList';
+import Routes from './routes';
 
 ReactDOM.render(
-  <ProductsList />,
+  <Routes />,
   document.getElementById('root')
 );

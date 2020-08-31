@@ -17,6 +17,7 @@
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-react": "^7.10.4",
     "babel-loader": "^8.1.0",
+    "copy-webpack-plugin": "^6.1.0",
     "html-webpack-plugin": "^4.4.1",
     "netlify-lambda": "^2.0.1",
     "sequelize-cli": "^6.2.0",
@@ -33,6 +34,7 @@
     "pg-hstore": "^2.3.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0",
     "saslprep": "^1.0.1",
     "sequelize": "^6.3.4"
   }
