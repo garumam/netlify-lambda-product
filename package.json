@@ -4,15 +4,25 @@
   "description": "",
   "scripts": {
     "start:server": "netlify-lambda serve functions -c ./webpack.functions.js",
-    "build": "netlify-lambda build functions -c ./webpack.functions.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:web": "webpack-dev-server --open --hot --mode development",
+    "build:prod": "npm run build:lambda; npm run build:web",
+    "build:lambda": "netlify-lambda build functions -c ./webpack.functions.js",
+    "build:web": "webpack --mode production"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.11.4",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-react": "^7.10.4",
+    "babel-loader": "^8.1.0",
+    "html-webpack-plugin": "^4.4.1",
     "netlify-lambda": "^2.0.1",
     "sequelize-cli": "^6.2.0",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0",
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
@@ -21,6 +31,8 @@
     "mongoose": "^5.10.2",
     "pg": "^8.3.3",
     "pg-hstore": "^2.3.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "saslprep": "^1.0.1",
     "sequelize": "^6.3.4"
   }
