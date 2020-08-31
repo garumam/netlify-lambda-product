@@ -1,6 +1,6 @@
-const db = require('./SaleContext/database');
+const Database = require('./SaleContext/database');
 const Product = require('./SaleContext/models/Product');
-const api = require('./services/api');
+const ProductApiAdapter = require('./SaleContext/adapters/ProductApiAdapter');
 const HC = require('./utils/http-code');
 
 let conn = null;
@@ -16,7 +16,7 @@ exports.handler = async (event, context, callback) => {
   }
 
   if (conn == null) {
-    conn = db.connection;
+    conn = (await new Database().init()).connection;
   }
 
   const t = await conn.transaction();
@@ -32,10 +32,10 @@ exports.handler = async (event, context, callback) => {
       { transaction: t }
     );
 
-    const res = await api.put('/.netlify/functions/products-store', body);
+    const { code } = await ProductApiAdapter.createProductInProductContext(body);
 
     await Product.update({
-      code: res.data.code
+      code
     }, {
       where: {
         id: productsCreated.map(p => p.id)

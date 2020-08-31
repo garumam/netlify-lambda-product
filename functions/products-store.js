@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
-const dbConnection = require('./ProductContext/database');
-const MongoDB = require('./ProductContext/database/MongoDB');
+const Database = require('./ProductContext/database');
 const HC = require('./utils/http-code');
 
 let conn = null;
@@ -16,9 +15,8 @@ exports.handler = async (event, context, callback) => {
   }
 
   try {
-
     if (conn == null) {
-      conn = await dbConnection(MongoDB);
+      conn = (await new Database().init()).connection;
     }
 
     const body = JSON.parse(event.body);

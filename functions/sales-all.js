@@ -1,4 +1,4 @@
-const db = require('./SaleContext/database');
+const Database = require('./SaleContext/database');
 const Sale = require('./SaleContext/models/Sale');
 const HC = require('./utils/http-code');
 
@@ -16,7 +16,7 @@ exports.handler = async (event, context, callback) => {
 
   try {
     if (conn == null) {
-      conn = db.connection;
+      conn = (await new Database().init()).connection;
     }
 
     const sales = await Sale.findAll();

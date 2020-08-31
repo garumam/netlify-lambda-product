@@ -1,4 +1,4 @@
-const db = require('./SaleContext/database');
+const Database = require('./SaleContext/database');
 const Sale = require('./SaleContext/models/Sale');
 const HC = require('./utils/http-code');
 
@@ -18,7 +18,7 @@ exports.handler = async (event, context, callback) => {
 
   try {
     if (conn == null) {
-      conn = db.connection;
+      conn = (await new Database().init()).connection;
     }
 
     const sale = await Sale.findByPk(id, {
@@ -28,7 +28,7 @@ exports.handler = async (event, context, callback) => {
         attributes: ['status', 'updatedAt']
       }, {
         association: 'products',
-        attributes: ['id', 'name', 'price']
+        attributes: ['id', 'code', 'name', 'price']
       }]
     });
 

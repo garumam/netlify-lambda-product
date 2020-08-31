@@ -9,11 +9,7 @@ const databaseConfig = require('../config/database');
 const models = [Sale, Product, Payment];
 
 class Database {
-  constructor() {
-    this.init();
-  }
-
-  init() {
+  async init() {
     this.connection = new Sequelize(databaseConfig.url, databaseConfig);
 
     models
@@ -21,7 +17,9 @@ class Database {
       .map(
         (model) => model.associate && model.associate(this.connection.models)
       );
+
+    return this;
   }
 }
 
-module.exports = new Database();
+module.exports = Database;

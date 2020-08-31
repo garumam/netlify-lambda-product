@@ -1,8 +1,8 @@
-const db = require('./SaleContext/database');
+const Database = require('./SaleContext/database');
 const Sale = require('./SaleContext/models/Sale');
-const Product = require('./SaleContext/models/Product');
 const Payment = require('./SaleContext/models/Payment');
-const api = require('./services/api');
+const PaymentApiAdapter = require('./SaleContext/adapters/PaymentApiAdapter');
+const ProductApiAdapter = require('./SaleContext/adapters/ProductApiAdapter');
 const HC = require('./utils/http-code');
 
 let conn = null;
@@ -18,7 +18,7 @@ exports.handler = async (event, context, callback) => {
   }
 
   if (conn == null) {
-    conn = db.connection;
+    conn = (await new Database().init()).connection;
   }
 
   const t = await conn.transaction();
@@ -33,100 +33,39 @@ exports.handler = async (event, context, callback) => {
       }
     }
 
-    let productsArray = [];
-
     const sale = await Sale.create({
       total_price: 0
     }, { transaction: t });
 
-    for (const product of data.products) {
+    const error = await sale
+      .reserveProducts({
+        productsList: data.products,
+        transaction: t
+      });
 
-      const products = await Product.findAll(
-        {
-          where: {
-            code: product.code,
-            sale_id: null
-          },
-          raw: true,
-          transaction: t
-        }
-      );
-
-      if (products.length < product.qtd) {
-        await t.rollback();
-        return {
-          statusCode: HC.ERROR.NOTACCEPTABLE,
-          body: JSON.stringify({
-            error:
-              `${product.name || 'Not Available'} - qtd required: ${product.qtd} but available only: ${products.length}`
-          })
-        }
-      }
-
-      const productsToReserve = products.slice(0, product.qtd);
-
-      const [numberOfUpdatedRows] = await Product.update(
-        { sale_id: sale.id },
-        {
-          transaction: t,
-          where: {
-            id: productsToReserve.map(p => p.id),
-            sale_id: null
-          }
-        }
-      );
-
-      if (numberOfUpdatedRows < product.qtd) {
-        await t.rollback();
-        return {
-          statusCode: HC.ERROR.NOTACCEPTABLE,
-          body: JSON.stringify({
-            error:
-              `${products[0].name} - qtd required: ${product.qtd} but available only: ${numberOfUpdatedRows}`
-          })
-        }
-      }
-
-      product.qtd = products.length - product.qtd;
-
-      productsArray = [...productsArray, ...productsToReserve];
+    if (error.statusCode === HC.ERROR.NOTACCEPTABLE) {
+      return error;
     }
 
-    const total_price = productsArray.reduce((prev, current) => {
-      return (prev + parseFloat(current.price));
-    }, 0);
+    await sale.updateTotalPriceOfReservedProducts().save({ transaction: t });
 
-    sale.set({
-      total_price
-    });
-
-    await sale.save({ transaction: t });
-
-    const res = await api.get('/.netlify/functions/payment-store');
+    const { status } = await PaymentApiAdapter.getStatusFromPaymentContext();
 
     await Payment.create({
       sale_id: sale.id,
-      status: res.data.status
+      status
     }, { transaction: t });
 
-    if (res.data.status === 'disapproved') {
+    if (status === 'disapproved') {
 
-      await Product.bulkCreate(
-        productsArray.map(p => ({
-          name: p.name,
-          price: p.price,
-          code: p.code
-        })),
-        { transaction: t }
-      );
+      await sale.cancelProductReservation({ transaction: t });
 
     } else {
 
-      //REQUEST PARA ATUALIZAR A QTD NO CONTEXTO DE PRODUTO (sincrono)
       await Promise.all(
         data.products.map(
           p => (
-            api.put('/.netlify/functions/products-store', { code: p.code, qtd: p.qtd })
+            ProductApiAdapter.notifyProductContextWithCodeAndQtd(p.code, p.qtd)
           ))
       );
 
