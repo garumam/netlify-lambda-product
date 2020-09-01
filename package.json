@@ -34,8 +34,10 @@
     "pg-hstore": "^2.3.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-icons": "^3.11.0",
     "react-router-dom": "^5.2.0",
     "saslprep": "^1.0.1",
-    "sequelize": "^6.3.4"
+    "sequelize": "^6.3.4",
+    "styled-components": "^5.1.1"
   }
 }

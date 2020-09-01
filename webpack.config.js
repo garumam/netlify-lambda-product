@@ -11,6 +11,7 @@ module.exports = {
   },
   devServer: {
     port: 3000,
+    historyApiFallback: true,
     proxy: {
       "/.netlify": {
         target: "http://localhost:9000",
