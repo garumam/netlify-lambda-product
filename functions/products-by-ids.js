@@ -6,7 +6,7 @@ let conn = null;
 exports.handler = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
-  if (event.httpMethod !== 'GET') {
+  if (event.httpMethod !== 'POST') {
     return {
       statusCode: HC.ERROR.NOTFOUND,
       body: JSON.stringify({ error: 'Not Found' }),
@@ -14,7 +14,7 @@ exports.handler = async (event, context, callback) => {
   }
 
   try {
-    const search = event.queryStringParameters.search;
+    const { productIds } = JSON.parse(event.body);
 
     if (conn == null) {
       conn = (await new Database().init()).connection;
@@ -22,16 +22,9 @@ exports.handler = async (event, context, callback) => {
 
     const Products = conn.model('Products');
 
-    const extraFilter = {};
-    if (search.replace(/ /g, '') !== '') {
-      extraFilter.name = {
-        $regex: new RegExp(search.trim().toLowerCase(), 'i'),
-      };
-    }
-
     const products = await Products.find({
       isActive: true,
-      ...extraFilter,
+      _id: productIds,
     });
 
     return {

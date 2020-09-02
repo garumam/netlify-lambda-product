@@ -13,8 +13,8 @@ exports.handler = async (event, context, callback) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: HC.ERROR.NOTFOUND,
-      body: JSON.stringify({ error: 'Not Found' })
-    }
+      body: JSON.stringify({ error: 'Not Found' }),
+    };
   }
 
   if (conn == null) {
@@ -29,21 +29,26 @@ exports.handler = async (event, context, callback) => {
     if (!data.products || !Array.isArray(data.products)) {
       return {
         statusCode: HC.ERROR.BADREQUEST,
-        body: JSON.stringify({ error: "Array of 'products' is required on body" })
-      }
+        body: JSON.stringify({
+          error: "Array of 'products' is required on body",
+        }),
+      };
     }
 
-    const sale = await Sale.create({
-      total_price: 0
-    }, { transaction: t });
+    const sale = await Sale.create(
+      {
+        total_price: 0,
+      },
+      { transaction: t }
+    );
 
-    const error = await sale
-      .reserveProducts({
-        productsList: data.products,
-        transaction: t
-      });
+    const error = await sale.reserveProducts({
+      productsList: data.products,
+      transaction: t,
+    });
 
     if (error.statusCode === HC.ERROR.NOTACCEPTABLE) {
+      console.log(error);
       return error;
     }
 
@@ -51,38 +56,36 @@ exports.handler = async (event, context, callback) => {
 
     const { status } = await PaymentApiAdapter.getStatusFromPaymentContext();
 
-    await Payment.create({
-      sale_id: sale.id,
-      status
-    }, { transaction: t });
+    await Payment.create(
+      {
+        sale_id: sale.id,
+        status,
+      },
+      { transaction: t }
+    );
 
     if (status === 'disapproved') {
-
       await sale.cancelProductReservation({ transaction: t });
-
     } else {
-
       await Promise.all(
-        data.products.map(
-          p => (
-            ProductApiAdapter.notifyProductContextWithCodeAndQtd(p.code, p.qtd)
-          ))
+        data.products.map((p) =>
+          ProductApiAdapter.notifyProductContextWithCodeAndQtd(p.code, p.qtd)
+        )
       );
-
     }
 
     await t.commit();
     return {
       statusCode: HC.OK.ACCEPTED,
       body: JSON.stringify({
-        message: 'Request in process'
-      })
-    }
+        message: 'Request in process',
+      }),
+    };
   } catch (err) {
     await t.rollback();
     return {
       statusCode: HC.ERROR.INTERNALERROR,
-      body: JSON.stringify({ error: 'Something went wrong' })
-    }
+      body: JSON.stringify({ error: 'Something went wrong' }),
+    };
   }
-}
+};

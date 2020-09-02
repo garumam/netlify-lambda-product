@@ -9,14 +9,14 @@ class Sale extends Sequelize.Model {
         id: {
           type: Sequelize.UUID,
           defaultValue: Sequelize.UUIDV4,
-          primaryKey: true
+          primaryKey: true,
         },
-        total_price: Sequelize.DECIMAL(10, 2)
+        total_price: Sequelize.DECIMAL(10, 2),
       },
       {
         sequelize,
         tableName: 'sales',
-        modelName: 'Sale'
+        modelName: 'Sale',
       }
     );
 
@@ -32,27 +32,25 @@ class Sale extends Sequelize.Model {
     this.reservedProducts = [];
 
     for (const product of productsList) {
-
-      const products = await Product.findAll(
-        {
-          where: {
-            code: product.code,
-            sale_id: null
-          },
-          raw: true,
-          transaction
-        }
-      );
+      const products = await Product.findAll({
+        where: {
+          code: product.code,
+          sale_id: null,
+        },
+        raw: true,
+        transaction,
+      });
 
       const getQtdErrorObject = (availableQtd) => {
         return {
           statusCode: HC.ERROR.NOTACCEPTABLE,
           body: JSON.stringify({
-            error:
-              `${product.name || 'Not Available'} - qtd required: ${product.qtd} but available only: ${availableQtd}`
-          })
-        }
-      }
+            error: `${product.name || 'Not Available'} - qtd required: ${
+              product.qtd
+            } but available only: ${availableQtd}`,
+          }),
+        };
+      };
 
       if (products.length < product.qtd) {
         await transaction.rollback();
@@ -66,13 +64,14 @@ class Sale extends Sequelize.Model {
         {
           transaction,
           where: {
-            id: productsToReserve.map(p => p.id),
-            sale_id: null
-          }
+            id: productsToReserve.map((p) => p.id),
+            sale_id: null,
+          },
         }
       );
 
-      if (numberOfUpdatedRows !== product.qtd) {
+      if (Number(numberOfUpdatedRows) !== Number(product.qtd)) {
+        console.log(`UPDATED ROWS:${numberOfUpdatedRows} e qtd ${product.qtd}`);
         await transaction.rollback();
         return getQtdErrorObject(numberOfUpdatedRows);
       }
@@ -87,7 +86,7 @@ class Sale extends Sequelize.Model {
 
   updateTotalPriceOfReservedProducts() {
     this.total_price = this.reservedProducts.reduce((prev, current) => {
-      return (prev + parseFloat(current.price));
+      return prev + parseFloat(current.price);
     }, 0);
 
     return this;
@@ -95,10 +94,10 @@ class Sale extends Sequelize.Model {
 
   async cancelProductReservation({ transaction }) {
     await Product.bulkCreate(
-      this.reservedProducts.map(p => ({
+      this.reservedProducts.map((p) => ({
         name: p.name,
         price: p.price,
-        code: p.code
+        code: p.code,
       })),
       { transaction }
     );
