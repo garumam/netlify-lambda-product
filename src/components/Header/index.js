@@ -15,7 +15,7 @@ function Header() {
 
   return (
     <Container>
-      <CartNotification onClick={handleCartClick}>
+      <CartNotification title="Ir para o carrinho!" onClick={handleCartClick}>
         <span>{state.length}</span>
         <FaShoppingCart />
       </CartNotification>

@@ -1,31 +1,17 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { FaCartPlus } from 'react-icons/fa';
-import { MdRemoveShoppingCart } from 'react-icons/md';
 import { store, cartActions } from '../../global/cartStore';
 import { toRealFormat } from '../../utils/formatPrice';
+import AddToCartButton from '../AddToCartButton';
 
-import { Container, PurchaseButton, AddToCartButton } from './styles';
+import { Container } from './styles';
 
-function ProductCard(props) {
+function ProductCard({ product }) {
+  const { dispatch } = useContext(store);
   const history = useHistory();
-  const { state: cartState, dispatch } = useContext(store);
-  const { product } = props;
-
-  const isActive = useMemo(() => {
-    return cartState.some((id) => id === product.id);
-  }, [cartState]);
-
-  const handleCartStore = () => {
-    const action = isActive
-      ? cartActions.REMOVE(product.id)
-      : cartActions.ADD(product.id);
-
-    dispatch(action);
-  };
 
   const handlePurchase = () => {
-    if (!isActive) dispatch(cartActions.ADD(product.id));
+    dispatch(cartActions.ADD(product.id));
     history.push('/cart');
   };
 
@@ -42,13 +28,10 @@ function ProductCard(props) {
       />
       <Link to={productRoute}>{product.name}</Link>
       <span>{toRealFormat(product.price)}</span>
-      <PurchaseButton onClick={handlePurchase}>Comprar</PurchaseButton>
-      <AddToCartButton
-        onClick={handleCartStore}
-        className={isActive && 'active'}
-      >
-        {isActive ? <MdRemoveShoppingCart /> : <FaCartPlus />}
-      </AddToCartButton>
+      <button title="Página de compra!" onClick={handlePurchase}>
+        Comprar
+      </button>
+      <AddToCartButton productId={product.id} />
     </Container>
   );
 }

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const Container = styled.li`
   display: grid;
-  grid-template-columns: 100px 1fr;
+  grid-template-columns: 100px 200px;
   grid-template-areas:
     'image title'
     'image price'
@@ -24,6 +24,9 @@ export const Container = styled.li`
     justify-self: center;
     font-size: 1.5rem;
     fill: ${(props) => props.theme.textColorTitles};
+    :hover {
+      fill: ${(props) => props.theme.extraColorLight};
+    }
   }
 
   & > img {

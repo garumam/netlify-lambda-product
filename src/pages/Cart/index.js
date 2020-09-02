@@ -15,14 +15,20 @@ function Cart() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
+    let isDestroyed = false;
     async function getProductsInCart() {
       const res = await api.post('/products-by-ids', {
         productIds: cartState,
       });
-
-      setProducts(res.data.products.map((p) => ({ ...p, reservedQtd: 0 })));
+      if (!isDestroyed) {
+        setProducts(res.data.products.map((p) => ({ ...p, reservedQtd: 0 })));
+      }
     }
     getProductsInCart();
+
+    return () => {
+      isDestroyed = true;
+    };
   }, []);
 
   const handleRemoveFromCart = (id) => {
@@ -77,10 +83,10 @@ function Cart() {
     <Container>
       <h2>{toRealFormat(cartTotalPrice)}</h2>
       <ButtonGroup>
-        <button onClick={goToProductList}>
+        <button title="Escolher mais produtos!" onClick={goToProductList}>
           <TiArrowBack />
         </button>
-        <button onClick={handlePurchase}>
+        <button title="Efetuar a compra!" onClick={handlePurchase}>
           <MdAttachMoney />
         </button>
       </ButtonGroup>

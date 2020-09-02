@@ -22,7 +22,7 @@ function CartItem({ product, handleRemove, handleReservedQtd }) {
 
   return (
     <Container>
-      <MdClose onClick={handleRemove} />
+      <MdClose title="Remover do carrinho!" onClick={handleRemove} />
       <img
         onClick={() => {
           history.push(`/product/${product.id}`);

@@ -7,17 +7,18 @@ module.exports = {
   entry: path.resolve(__dirname, 'src', 'index.js'),
   output: {
     path: path.resolve(__dirname, 'build'),
-    filename: 'bundle.js'
+    publicPath: '/',
+    filename: 'bundle.js',
   },
   devServer: {
     port: 3000,
     historyApiFallback: true,
     proxy: {
-      "/.netlify": {
-        target: "http://localhost:9000",
-        pathRewrite: { "^/.netlify/functions": "" }
-      }
-    }
+      '/.netlify': {
+        target: 'http://localhost:9000',
+        pathRewrite: { '^/.netlify/functions': '' },
+      },
+    },
   },
   module: {
     rules: [
@@ -37,25 +38,25 @@ module.exports = {
                 },
               ],
               '@babel/preset-react',
-            ]
-          }
-        }
-      }
-    ]
+            ],
+          },
+        },
+      },
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'public', 'index.html'),
       filename: 'index.html',
-      inject: 'body'
+      inject: 'body',
     }),
     new CopyWebpackPlugin({
       patterns: [
         {
           from: path.resolve(__dirname, 'public', '_redirects'),
-          to: path.resolve(__dirname, 'build')
+          to: path.resolve(__dirname, 'build'),
         },
       ],
-    })
-  ]
+    }),
+  ],
 };

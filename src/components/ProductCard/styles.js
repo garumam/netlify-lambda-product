@@ -44,6 +44,10 @@ export const Container = styled.li`
     font-weight: 600;
   }
 
+  & > button:first-of-type {
+    grid-area: purchase;
+  }
+
   & + li {
     margin-top: 0.8rem;
   }
@@ -59,26 +63,5 @@ export const Container = styled.li`
     & + li {
       margin-top: 0;
     }
-  }
-`;
-
-export const PurchaseButton = styled.button`
-  grid-area: purchase;
-`;
-
-export const AddToCartButton = styled.button.attrs({
-  active: true,
-})`
-  grid-area: cart;
-  font-size: 1.3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-color: ${(props) => props.theme.textColorTitles};
-
-  &:hover,
-  &.active {
-    background: ${(props) => props.theme.textColorTitles};
-    color: ${(props) => props.theme.textColor};
   }
 `;
