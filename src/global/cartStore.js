@@ -13,6 +13,9 @@ const cartActions = {
   REMOVE(payload) {
     return { type: 'remove product', payload };
   },
+  CLEARALL() {
+    return { type: 'clear' };
+  },
 };
 
 const CartProvider = ({ children }) => {
@@ -38,6 +41,11 @@ const CartProvider = ({ children }) => {
         );
 
         return stateWithoutRemovedProduct;
+
+      case cartActions.CLEARALL().type:
+        localStorage.removeItem('cartItems');
+
+        return [];
 
       default:
         throw new Error();

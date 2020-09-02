@@ -1,23 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import api from '../../services/api';
+import React, { useState, useRef } from 'react';
+import { MdSearch } from 'react-icons/md';
+import { useSearchResult } from '../../customHooks/useSearchResult';
 import ProductCard from '../../components/ProductCard';
 
-import { Container } from './styles';
+import { Container, SearchContainer } from './styles';
 
 function ProductsList() {
-  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState('');
+  const products = useSearchResult(search);
 
-  useEffect(() => {
-    async function getProducts() {
-      const res = await api.get('/products-all');
-      setProducts(res.data.products);
+  const searchInput = useRef();
+
+  const handleSeach = () => {
+    setSearch(searchInput.current.value.trim());
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSeach();
     }
-    getProducts();
-  }, []);
-  //<Link to="/product">Produto</Link>
+  };
+
   return (
     <Container>
+      <SearchContainer>
+        <input onKeyDown={handleKeyDown} ref={searchInput} />
+        <MdSearch onClick={handleSeach} />
+      </SearchContainer>
       <ul>
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />

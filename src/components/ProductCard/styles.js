@@ -17,6 +17,7 @@ export const Container = styled.li`
   grid-gap: 0.8rem;
 
   & > img {
+    cursor: pointer;
     grid-area: image;
     width: 100%;
     height: 100%;
@@ -27,7 +28,7 @@ export const Container = styled.li`
 
   & > a {
     grid-area: title;
-    align-self: center;
+    align-self: baseline;
     justify-self: center;
   }
 
@@ -45,6 +46,19 @@ export const Container = styled.li`
 
   & + li {
     margin-top: 0.8rem;
+  }
+
+  @media (min-width: 700px) {
+    grid-template-rows: 200px repeat(2, 30px) 1fr;
+    grid-template-areas:
+      'image image'
+      'title title'
+      'price price'
+      'purchase cart';
+
+    & + li {
+      margin-top: 0;
+    }
   }
 `;
 

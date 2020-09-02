@@ -8,6 +8,8 @@ export const Container = styled.footer`
   height: 60px;
   font-size: 0.9em;
   font-weight: 300;
+  border-top: solid 1px ${(props) => `rgba(${props.theme.bgSCRGB}, 0.3)`};
+
   & > a {
     padding-left: 3px;
   }
