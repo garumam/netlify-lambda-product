@@ -1,21 +1,35 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { FaShoppingCart } from 'react-icons/fa';
+import { SiMarketo } from 'react-icons/si';
 import { store } from '../../global/cartStore';
 
-import { Container, CartNotification } from './styles';
+import { Container, CartNotification, Logo } from './styles';
 
 function Header() {
   const history = useHistory();
   const { state } = useContext(store);
 
-  const handleCartClick = () => {
-    history.push('/cart');
+  const goTo = (path) => {
+    history.push(path);
   };
 
   return (
     <Container>
-      <CartNotification title="Ir para o carrinho!" onClick={handleCartClick}>
+      <Logo
+        onClick={() => {
+          goTo('/');
+        }}
+      >
+        <SiMarketo />
+        <h1>arketE</h1>
+      </Logo>
+      <CartNotification
+        title="Ir para o carrinho!"
+        onClick={() => {
+          goTo('/cart');
+        }}
+      >
         <span>{state.length}</span>
         <FaShoppingCart />
       </CartNotification>

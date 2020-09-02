@@ -2,7 +2,8 @@ import styled from 'styled-components';
 
 export const Container = styled.header`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: baseline;
   padding: 1.5rem;
   padding-top: 1rem;
   width: 100%;
@@ -16,6 +17,23 @@ export const Container = styled.header`
   svg:hover {
     cursor: pointer;
     fill: ${(props) => props.theme.textColorTitles};
+  }
+`;
+
+export const Logo = styled.button`
+  cursor: pointer;
+  display: flex;
+  padding: 0.3rem;
+  font-size: 1.5rem;
+  border: none;
+
+  svg {
+    fill: ${(props) => props.theme.textColorTitles};
+  }
+
+  :hover {
+    color: inherit;
+    background: transparent;
   }
 `;
 
