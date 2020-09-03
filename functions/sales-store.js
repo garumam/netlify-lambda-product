@@ -48,7 +48,6 @@ exports.handler = async (event, context, callback) => {
     });
 
     if (error.statusCode === HC.ERROR.NOTACCEPTABLE) {
-      console.log(error);
       return error;
     }
 
@@ -78,7 +77,7 @@ exports.handler = async (event, context, callback) => {
     return {
       statusCode: HC.OK.ACCEPTED,
       body: JSON.stringify({
-        message: 'Request in process',
+        message: 'Seu pedido está sendo processado!',
       }),
     };
   } catch (err) {

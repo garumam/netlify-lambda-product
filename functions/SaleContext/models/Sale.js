@@ -45,9 +45,9 @@ class Sale extends Sequelize.Model {
         return {
           statusCode: HC.ERROR.NOTACCEPTABLE,
           body: JSON.stringify({
-            error: `${product.name || 'Not Available'} - qtd required: ${
+            error: `${product.name || 'Sem nome'} - qtd pedida: ${
               product.qtd
-            } but available only: ${availableQtd}`,
+            } qtd disponível: ${availableQtd}`,
           }),
         };
       };
@@ -71,7 +71,6 @@ class Sale extends Sequelize.Model {
       );
 
       if (Number(numberOfUpdatedRows) !== Number(product.qtd)) {
-        console.log(`UPDATED ROWS:${numberOfUpdatedRows} e qtd ${product.qtd}`);
         await transaction.rollback();
         return getQtdErrorObject(numberOfUpdatedRows);
       }
