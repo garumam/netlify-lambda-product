@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { TiArrowBack } from 'react-icons/ti';
 import { MdAttachMoney } from 'react-icons/md';
 import { store, cartActions } from '../../global/cartStore';
+import { store as notifyStore } from '../../global/notificationStore';
 import api from '../../services/api';
 import { toRealFormat } from '../../utils/formatPrice';
 import CartItem from '../../components/CartItem';
@@ -13,6 +14,8 @@ import { Container, ButtonGroup } from './styles';
 function Cart() {
   const history = useHistory();
   const { state: cartState, dispatch } = useContext(store);
+  const notify = useContext(notifyStore);
+
   const [products, setProducts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,7 +32,7 @@ function Cart() {
           setProducts(res.products.map((p) => ({ ...p, reservedQtd: 0 })));
         }
       } catch (error) {
-        alert(error);
+        notify.ERROR(error, 5);
       }
       if (!isDestroyed) setIsLoading(false);
     }
@@ -76,18 +79,19 @@ function Cart() {
       }));
 
     if (purchaseProducts.length < 1) {
-      alert('Selecione a quantidade para cada produto!');
+      notify.MESSAGE('Selecione a quantidade para cada produto!', 5);
     } else {
       setIsLoading(true);
       try {
         const res = await api.post('/sales-store', {
           products: purchaseProducts,
         });
-        alert(res.message);
+
         dispatch(cartActions.CLEARALL());
         goToProductList();
+        notify.MESSAGE(res.message, 5);
       } catch (error) {
-        alert(error);
+        notify.ERROR(error, 5);
       }
       setIsLoading(false);
     }
@@ -96,7 +100,7 @@ function Cart() {
   return (
     <Container>
       <Loading loading={isLoading} />
-      <h2>{toRealFormat(cartTotalPrice)}</h2>
+      <h2>{toRealFormat(cartTotalPrice ?? 0)}</h2>
       <ButtonGroup>
         <button title="Escolher mais produtos!" onClick={goToProductList}>
           <TiArrowBack />
