@@ -5,6 +5,7 @@ import AppLayout from './AppLayout';
 import ProductsList from './pages/ProductsList';
 import ProductInfo from './pages/ProductInfo';
 import Cart from './pages/Cart';
+import Error404 from './pages/Error404';
 
 import { theme } from './global/theme';
 import GlobalStyle from './global/styles';
@@ -17,8 +18,9 @@ function Routes() {
         <AppLayout>
           <Switch>
             <Route path="/" exact component={ProductsList} />
-            <Route path="/product/:id" component={ProductInfo} />
-            <Route path="/cart" component={Cart} />
+            <Route path="/product/:id" exact component={ProductInfo} />
+            <Route path="/cart" exact component={Cart} />
+            <Route path="*" component={Error404} />
           </Switch>
         </AppLayout>
       </BrowserRouter>

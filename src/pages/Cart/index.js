@@ -8,6 +8,10 @@ import api from '../../services/api';
 import { toRealFormat } from '../../utils/formatPrice';
 import CartItem from '../../components/CartItem';
 import Loading from '../../components/Loading';
+import {
+  calculateTotalPriceOfProducts,
+  prepareProductsToFetch,
+} from '../../utils/functionsToManipulateProducts';
 
 import { Container, ButtonGroup } from './styles';
 
@@ -32,7 +36,7 @@ function Cart() {
           setProducts(res.products.map((p) => ({ ...p, reservedQtd: 0 })));
         }
       } catch (error) {
-        notify.ERROR(error, 5);
+        notify.ERROR(error, 3);
       }
       if (!isDestroyed) setIsLoading(false);
     }
@@ -60,9 +64,7 @@ function Cart() {
   };
 
   const cartTotalPrice = useMemo(() => {
-    return products?.reduce((prev, current) => {
-      return prev + parseFloat(current.price * current.reservedQtd);
-    }, 0);
+    return calculateTotalPriceOfProducts(products);
   }, [products]);
 
   const goToProductList = () => {
@@ -70,13 +72,7 @@ function Cart() {
   };
 
   const handlePurchase = async () => {
-    const purchaseProducts = products
-      ?.filter((p) => p.reservedQtd > 0)
-      .map((p) => ({
-        name: p.name,
-        code: p.id,
-        qtd: p.reservedQtd,
-      }));
+    const purchaseProducts = prepareProductsToFetch(products);
 
     if (purchaseProducts.length < 1) {
       notify.MESSAGE('Selecione a quantidade para cada produto!', 5);
@@ -88,7 +84,7 @@ function Cart() {
         });
 
         dispatch(cartActions.CLEARALL());
-        goToProductList();
+        setProducts([]);
         notify.MESSAGE(res.message, 5);
       } catch (error) {
         notify.ERROR(error, 5);
@@ -105,7 +101,11 @@ function Cart() {
         <button title="Escolher mais produtos!" onClick={goToProductList}>
           <TiArrowBack />
         </button>
-        <button title="Efetuar a compra!" onClick={handlePurchase}>
+        <button
+          style={isLoading ? { pointerEvents: 'none' } : null}
+          title="Efetuar a compra!"
+          onClick={handlePurchase}
+        >
           <MdAttachMoney />
         </button>
       </ButtonGroup>

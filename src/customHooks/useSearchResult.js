@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { store } from '../global/notificationStore';
 import api from '../services/api';
 
 export function useSearchResult(search = '') {
   const [products, setProducts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const notify = useContext(store);
 
   useEffect(() => {
     let isDestroyed = false;
@@ -15,11 +18,13 @@ export function useSearchResult(search = '') {
             search,
           },
         });
-        if (!isDestroyed) setProducts(res.products);
+        if (!isDestroyed) {
+          setProducts(res.products);
+          setIsLoading(false);
+        }
       } catch (error) {
-        alert(error);
+        notify.ERROR(error, 3);
       }
-      if (!isDestroyed) setIsLoading(false);
     }
     getProducts();
 
