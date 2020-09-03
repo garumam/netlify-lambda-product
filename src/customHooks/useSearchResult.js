@@ -2,17 +2,24 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 
 export function useSearchResult(search = '') {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     let isDestroyed = false;
-
+    setIsLoading(true);
     async function getProducts() {
-      const res = await api.get('/products-all', {
-        params: {
-          search,
-        },
-      });
-      if (!isDestroyed) setProducts(res.data.products);
+      try {
+        const res = await api.get('/products-all', {
+          params: {
+            search,
+          },
+        });
+        if (!isDestroyed) setProducts(res.products);
+      } catch (error) {
+        alert(error);
+      }
+      if (!isDestroyed) setIsLoading(false);
     }
     getProducts();
 
@@ -21,5 +28,5 @@ export function useSearchResult(search = '') {
     };
   }, [search]);
 
-  return products;
+  return [products, isLoading];
 }

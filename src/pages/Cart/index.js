@@ -6,23 +6,32 @@ import { store, cartActions } from '../../global/cartStore';
 import api from '../../services/api';
 import { toRealFormat } from '../../utils/formatPrice';
 import CartItem from '../../components/CartItem';
+import Loading from '../../components/Loading';
 
 import { Container, ButtonGroup } from './styles';
 
 function Cart() {
   const history = useHistory();
   const { state: cartState, dispatch } = useContext(store);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isDestroyed = false;
+    setIsLoading(true);
     async function getProductsInCart() {
-      const res = await api.post('/products-by-ids', {
-        productIds: cartState,
-      });
-      if (!isDestroyed) {
-        setProducts(res.data.products.map((p) => ({ ...p, reservedQtd: 0 })));
+      try {
+        const res = await api.post('/products-by-ids', {
+          productIds: cartState,
+        });
+
+        if (!isDestroyed) {
+          setProducts(res.products.map((p) => ({ ...p, reservedQtd: 0 })));
+        }
+      } catch (error) {
+        alert(error);
       }
+      if (!isDestroyed) setIsLoading(false);
     }
     getProductsInCart();
 
@@ -48,7 +57,7 @@ function Cart() {
   };
 
   const cartTotalPrice = useMemo(() => {
-    return products.reduce((prev, current) => {
+    return products?.reduce((prev, current) => {
       return prev + parseFloat(current.price * current.reservedQtd);
     }, 0);
   }, [products]);
@@ -59,7 +68,7 @@ function Cart() {
 
   const handlePurchase = async () => {
     const purchaseProducts = products
-      .filter((p) => p.reservedQtd > 0)
+      ?.filter((p) => p.reservedQtd > 0)
       .map((p) => ({
         name: p.name,
         code: p.id,
@@ -69,18 +78,24 @@ function Cart() {
     if (purchaseProducts.length < 1) {
       alert('Selecione a quantidade para cada produto!');
     } else {
-      const res = await api.post('/sales-store', {
-        products: purchaseProducts,
-      });
-
-      dispatch(cartActions.CLEARALL());
-      goToProductList();
-      alert(res.data.message);
+      setIsLoading(true);
+      try {
+        const res = await api.post('/sales-store', {
+          products: purchaseProducts,
+        });
+        alert(res.message);
+        dispatch(cartActions.CLEARALL());
+        goToProductList();
+      } catch (error) {
+        alert(error);
+      }
+      setIsLoading(false);
     }
   };
 
   return (
     <Container>
+      <Loading loading={isLoading} />
       <h2>{toRealFormat(cartTotalPrice)}</h2>
       <ButtonGroup>
         <button title="Escolher mais produtos!" onClick={goToProductList}>
@@ -91,7 +106,7 @@ function Cart() {
         </button>
       </ButtonGroup>
       <ul>
-        {products.map((product) => (
+        {products?.map((product) => (
           <CartItem
             key={product.id}
             product={product}

@@ -4,27 +4,35 @@ import AddToCartButton from '../../components/AddToCartButton';
 import { toRealFormat } from '../../utils/formatPrice';
 import { store, cartActions } from '../../global/cartStore';
 import api from '../../services/api';
+import Loading from '../../components/Loading';
 
 import { Container, ProductContainer, ProductDetail } from './styles';
 
 function ProductInfo() {
-  const [product, setProduct] = useState({});
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { dispatch } = useContext(store);
   const history = useHistory();
   const { id } = useParams();
 
   useEffect(() => {
     let isDestroyed = false;
+    setIsLoading(true);
     async function getProduct() {
-      const res = await api.get('/products-show', {
-        params: {
-          id,
-        },
-      });
+      try {
+        const res = await api.get('/products-show', {
+          params: {
+            id,
+          },
+        });
 
-      if (!isDestroyed) {
-        setProduct(res.data.product);
+        if (!isDestroyed) {
+          setProduct(res.product);
+        }
+      } catch (error) {
+        alert(error);
       }
+      if (!isDestroyed) setIsLoading(false);
     }
 
     getProduct();
@@ -41,6 +49,7 @@ function ProductInfo() {
 
   return (
     <Container>
+      <Loading loading={isLoading} />
       <ProductContainer>
         <h2>{product?.name} sadas sad asd</h2>
         <img src={product?.picture} alt={product?.name} />
