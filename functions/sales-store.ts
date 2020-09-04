@@ -1,23 +1,18 @@
+import { Sequelize } from 'sequelize';
 import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
 import Database from './SaleContext/database';
 import HC from './utils/http-code';
-import Sale from './SaleContext/models/Sale';
+import Sale, { ProductsToReserve } from './SaleContext/models/Sale';
 import Payment from './SaleContext/models/Payment';
 import PaymentApiAdapter from './SaleContext/adapters/PaymentApiAdapter';
 import ProductApiAdapter from './SaleContext/adapters/ProductApiAdapter';
 import { CustomResponse } from './utils/CustomInterfaces';
 
-interface Product {
-  name: string;
-  code: string;
-  qtd: number;
-}
-
 interface EventBody {
-  products: Product[];
+  products: ProductsToReserve[];
 }
 
-let conn = null;
+let conn: Sequelize | null = null;
 
 const handler: Handler<APIGatewayEvent, CustomResponse> = async (
   event,
@@ -77,7 +72,7 @@ const handler: Handler<APIGatewayEvent, CustomResponse> = async (
     );
 
     if (status === 'disapproved') {
-      await sale.cancelProductReservation({ transaction: t });
+      await sale.cancelProductReservation(t);
     } else {
       await Promise.all(
         data.products.map((p) =>
@@ -94,7 +89,6 @@ const handler: Handler<APIGatewayEvent, CustomResponse> = async (
       }),
     };
   } catch (err) {
-    console.log('DEU RUIM', err);
     await t.rollback();
     return {
       statusCode: HC.ERROR.INTERNALERROR,

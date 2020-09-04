@@ -1,7 +1,7 @@
 import { Sequelize, Model, DataTypes, Optional } from 'sequelize';
 
 interface ProductAttributes {
-  id: number;
+  id: string;
   code: string;
   name: string;
   price: number;
@@ -14,7 +14,7 @@ interface ProductCreationAttributes
 class Product
   extends Model<ProductAttributes, ProductCreationAttributes>
   implements ProductAttributes {
-  public id: number;
+  public id: string;
   public code: string;
   public name: string;
   public price: number;

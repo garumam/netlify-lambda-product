@@ -32,6 +32,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
+            babelrc: false,
             presets: [
               [
                 '@babel/preset-env',
@@ -42,6 +43,7 @@ module.exports = {
                 },
               ],
               '@babel/preset-react',
+              '@babel/preset-typescript',
             ],
           },
         },

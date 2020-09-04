@@ -1,3 +1,4 @@
+import { Sequelize } from 'sequelize';
 import { Handler, Context } from 'aws-lambda';
 import Database from './SaleContext/database';
 import HC from './utils/http-code';
@@ -8,7 +9,7 @@ interface ExpectedParams {
   id: string;
 }
 
-let conn = null;
+let conn: Sequelize | null = null;
 
 const handler: Handler<CustomEvent<ExpectedParams>, CustomResponse> = async (
   event,

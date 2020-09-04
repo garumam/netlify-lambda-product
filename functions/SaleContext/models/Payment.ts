@@ -1,7 +1,7 @@
 import { Sequelize, Model, DataTypes, Optional } from 'sequelize';
 
 interface PaymentAttributes {
-  id: number;
+  id: string;
   status: string;
   sale_id: string;
 }
@@ -11,7 +11,7 @@ interface PaymentCreationAttributes extends Optional<PaymentAttributes, 'id'> {}
 class Payment
   extends Model<PaymentAttributes, PaymentCreationAttributes>
   implements PaymentAttributes {
-  public id: number;
+  public id: string;
   public status: string;
   public sale_id: string;
 

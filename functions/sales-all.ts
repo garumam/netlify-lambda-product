@@ -1,10 +1,11 @@
+import { Sequelize } from 'sequelize';
 import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
 import Database from './SaleContext/database';
 import HC from './utils/http-code';
 import Sale from './SaleContext/models/Sale';
 import { CustomResponse } from './utils/CustomInterfaces';
 
-let conn = null;
+let conn: Sequelize | null = null;
 
 const handler: Handler<APIGatewayEvent, CustomResponse> = async (
   event,

@@ -1,3 +1,4 @@
+import { Connection } from 'mongoose';
 import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
 import Database from './SearchContext/database';
 import HC from './utils/http-code';
@@ -7,7 +8,7 @@ interface EventBody {
   productIds: string[];
 }
 
-let conn = null;
+let conn: Connection | null = null;
 
 const handler: Handler<APIGatewayEvent, CustomResponse> = async (
   event,

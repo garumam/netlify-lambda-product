@@ -1,3 +1,4 @@
+import { Connection } from 'mongoose';
 import { Handler, Context } from 'aws-lambda';
 import Database from './SearchContext/database';
 import HC from './utils/http-code';
@@ -7,7 +8,7 @@ interface ExpectedParams {
   search: string;
 }
 
-let conn = null;
+let conn: Connection | null = null;
 
 const handler: Handler<CustomEvent<ExpectedParams>, CustomResponse> = async (
   event,

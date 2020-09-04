@@ -6,7 +6,7 @@ import { CustomResponse, ProductParams } from './utils/CustomInterfaces';
 
 interface EventBody extends ProductParams {}
 
-let conn = null;
+let conn: mongoose.Connection | null = null;
 
 const handler: Handler<APIGatewayEvent, CustomResponse> = async (
   event,

@@ -1,6 +1,17 @@
-import { Sequelize, Model, DataTypes, Optional } from 'sequelize';
+import { Sequelize, Model, DataTypes, Optional, Transaction } from 'sequelize';
 import Product from './Product';
 import HC from '../../utils/http-code';
+
+export interface ProductsToReserve {
+  name: string;
+  code: string;
+  qtd: number;
+}
+
+interface ReserveProductsMethodParams {
+  productsList: ProductsToReserve[];
+  transaction: Transaction;
+}
 
 interface SaleAttributes {
   id: string;
@@ -45,7 +56,8 @@ class Sale
     this.hasOne(models.Payment, { foreignKey: 'sale_id', as: 'payment' });
   }
 
-  async reserveProducts({ productsList, transaction }) {
+  async reserveProducts(options: ReserveProductsMethodParams) {
+    const { productsList, transaction } = options;
     this.reservedProducts = [];
 
     for (const product of productsList) {
@@ -108,7 +120,7 @@ class Sale
     return this;
   }
 
-  async cancelProductReservation({ transaction }) {
+  async cancelProductReservation(transaction: Transaction) {
     await Product.bulkCreate(
       this.reservedProducts.map((p) => ({
         name: p.name,

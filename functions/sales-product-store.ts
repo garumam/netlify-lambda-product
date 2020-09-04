@@ -1,3 +1,4 @@
+import { Sequelize } from 'sequelize';
 import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
 import Database from './SaleContext/database';
 import HC from './utils/http-code';
@@ -7,7 +8,7 @@ import { CustomResponse, ProductParams } from './utils/CustomInterfaces';
 
 interface EventBody extends Omit<ProductParams, 'code'> {}
 
-let conn = null;
+let conn: Sequelize | null = null;
 
 const handler: Handler<APIGatewayEvent, CustomResponse> = async (
   event,
@@ -49,7 +50,7 @@ const handler: Handler<APIGatewayEvent, CustomResponse> = async (
       },
       {
         where: {
-          id: productsCreated.map((p) => p.get('id')) as string[],
+          id: productsCreated.map((p) => p.id),
         },
         transaction: t,
       }
