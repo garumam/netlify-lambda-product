@@ -23,7 +23,7 @@ const handler: Handler<CustomEvent<ExpectedParams>, CustomResponse> = async (
   }
 
   try {
-    const search = event.queryStringParameters.search;
+    const search = event.queryStringParameters.search || '';
 
     if (conn == null) {
       conn = (await new Database().init()).connection;
