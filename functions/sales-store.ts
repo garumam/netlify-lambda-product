@@ -1,13 +1,28 @@
-const Database = require('./SaleContext/database');
-const Sale = require('./SaleContext/models/Sale');
-const Payment = require('./SaleContext/models/Payment');
-const PaymentApiAdapter = require('./SaleContext/adapters/PaymentApiAdapter');
-const ProductApiAdapter = require('./SaleContext/adapters/ProductApiAdapter');
-const HC = require('./utils/http-code');
+import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
+import Database from './SaleContext/database';
+import HC from './utils/http-code';
+import Sale from './SaleContext/models/Sale';
+import Payment from './SaleContext/models/Payment';
+import PaymentApiAdapter from './SaleContext/adapters/PaymentApiAdapter';
+import ProductApiAdapter from './SaleContext/adapters/ProductApiAdapter';
+import { CustomResponse } from './utils/CustomInterfaces';
+
+interface Product {
+  name: string;
+  code: string;
+  qtd: number;
+}
+
+interface EventBody {
+  products: Product[];
+}
 
 let conn = null;
 
-exports.handler = async (event, context, callback) => {
+const handler: Handler<APIGatewayEvent, CustomResponse> = async (
+  event,
+  context: Context
+) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
   if (event.httpMethod !== 'POST') {
@@ -24,7 +39,7 @@ exports.handler = async (event, context, callback) => {
   const t = await conn.transaction();
 
   try {
-    const data = JSON.parse(event.body);
+    const data: EventBody = JSON.parse(event.body);
 
     if (!data.products || !Array.isArray(data.products)) {
       return {
@@ -47,9 +62,7 @@ exports.handler = async (event, context, callback) => {
       transaction: t,
     });
 
-    if (error.statusCode === HC.ERROR.NOTACCEPTABLE) {
-      return error;
-    }
+    if (error) return error;
 
     await sale.updateTotalPriceOfReservedProducts().save({ transaction: t });
 
@@ -81,6 +94,7 @@ exports.handler = async (event, context, callback) => {
       }),
     };
   } catch (err) {
+    console.log('DEU RUIM', err);
     await t.rollback();
     return {
       statusCode: HC.ERROR.INTERNALERROR,
@@ -88,3 +102,5 @@ exports.handler = async (event, context, callback) => {
     };
   }
 };
+
+export { handler };

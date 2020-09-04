@@ -1,9 +1,18 @@
-const Database = require('./ProductContext/database');
-const HC = require('./utils/http-code');
+import { Handler, Context } from 'aws-lambda';
+import Database from './SearchContext/database';
+import HC from './utils/http-code';
+import { CustomResponse, CustomEvent } from './utils/CustomInterfaces';
+
+interface ExpectedParams {
+  search: string;
+}
 
 let conn = null;
 
-exports.handler = async (event, context, callback) => {
+const handler: Handler<CustomEvent<ExpectedParams>, CustomResponse> = async (
+  event,
+  context: Context
+) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
   if (event.httpMethod !== 'GET') {
@@ -22,7 +31,7 @@ exports.handler = async (event, context, callback) => {
 
     const Products = conn.model('Products');
 
-    const extraFilter = {};
+    const extraFilter: { name?: object } = {};
     if (search.replace(/ /g, '') !== '') {
       extraFilter.name = {
         $regex: new RegExp(search.trim().toLowerCase(), 'i'),
@@ -45,3 +54,5 @@ exports.handler = async (event, context, callback) => {
     };
   }
 };
+
+export { handler };

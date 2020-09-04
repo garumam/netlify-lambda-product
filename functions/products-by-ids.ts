@@ -1,9 +1,18 @@
-const Database = require('./ProductContext/database');
-const HC = require('./utils/http-code');
+import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
+import Database from './SearchContext/database';
+import HC from './utils/http-code';
+import { CustomResponse } from './utils/CustomInterfaces';
+
+interface EventBody {
+  productIds: string[];
+}
 
 let conn = null;
 
-exports.handler = async (event, context, callback) => {
+const handler: Handler<APIGatewayEvent, CustomResponse> = async (
+  event,
+  context: Context
+) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
   if (event.httpMethod !== 'POST') {
@@ -14,7 +23,7 @@ exports.handler = async (event, context, callback) => {
   }
 
   try {
-    const { productIds } = JSON.parse(event.body);
+    const { productIds }: EventBody = JSON.parse(event.body);
 
     if (conn == null) {
       conn = (await new Database().init()).connection;
@@ -38,3 +47,5 @@ exports.handler = async (event, context, callback) => {
     };
   }
 };
+
+export { handler };

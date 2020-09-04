@@ -1,17 +1,35 @@
-const Sequelize = require('sequelize');
-const Product = require('./Product');
-const HC = require('../../utils/http-code');
+import { Sequelize, Model, DataTypes, Optional } from 'sequelize';
+import Product from './Product';
+import HC from '../../utils/http-code';
 
-class Sale extends Sequelize.Model {
-  static init(sequelize) {
-    super.init(
+interface SaleAttributes {
+  id: string;
+  total_price: number;
+}
+
+interface SaleCreationAttributes
+  extends Optional<SaleAttributes, 'id' | 'total_price'> {}
+
+class Sale
+  extends Model<SaleAttributes, SaleCreationAttributes>
+  implements SaleAttributes {
+  public id: string;
+  public total_price: number;
+
+  public readonly created_at: Date;
+  public readonly updated_at: Date;
+
+  private reservedProducts?: Product[];
+
+  static initModel(sequelize: Sequelize) {
+    this.init(
       {
         id: {
-          type: Sequelize.UUID,
-          defaultValue: Sequelize.UUIDV4,
+          type: DataTypes.UUID,
+          defaultValue: DataTypes.UUIDV4,
           primaryKey: true,
         },
-        total_price: Sequelize.DECIMAL(10, 2),
+        total_price: DataTypes.DECIMAL(10, 2),
       },
       {
         sequelize,
@@ -19,7 +37,6 @@ class Sale extends Sequelize.Model {
         modelName: 'Sale',
       }
     );
-
     return this;
   }
 
@@ -80,12 +97,12 @@ class Sale extends Sequelize.Model {
       this.reservedProducts = [...this.reservedProducts, ...productsToReserve];
     }
 
-    return this;
+    return false;
   }
 
   updateTotalPriceOfReservedProducts() {
     this.total_price = this.reservedProducts.reduce((prev, current) => {
-      return prev + parseFloat(current.price);
+      return prev + Number(current.price);
     }, 0);
 
     return this;
@@ -103,4 +120,4 @@ class Sale extends Sequelize.Model {
   }
 }
 
-module.exports = Sale;
+export default Sale;
