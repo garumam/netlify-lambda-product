@@ -1,19 +1,41 @@
 import React, { createContext, useState } from 'react';
 import Notification from '../components/Notification';
 
-const initialState = {
+type MessageType = string | string[];
+type TimeType = number | null;
+
+interface MyContext {
+  MESSAGE(messages: MessageType, time: TimeType): void;
+  ERROR(messages: MessageType, time: TimeType): void;
+  CLOSE(): void;
+}
+
+const store = createContext({} as MyContext);
+
+const { Provider } = store;
+
+interface StateFormat {
+  open: boolean;
+  type: string;
+  messages: string[];
+  time: TimeType;
+}
+
+const initialState: StateFormat = {
   open: false,
   type: 'success',
   messages: [''],
   time: null,
 };
-const store = createContext(initialState);
-const { Provider } = store;
 
-function NotificationProvider({ children }) {
+const NotificationProvider: React.FC = ({ children }) => {
   const [state, setState] = useState(initialState);
 
-  const returnNewState = (type, messages, time) => {
+  const returnNewState = (
+    type: StateFormat['type'],
+    messages: MessageType,
+    time: StateFormat['time']
+  ): StateFormat => {
     return {
       open: true,
       type,
@@ -22,11 +44,11 @@ function NotificationProvider({ children }) {
     };
   };
 
-  const notify = {
-    MESSAGE: (messages, time = null) => {
+  const notify: MyContext = {
+    MESSAGE: (messages: MessageType, time: TimeType = null) => {
       setState(returnNewState('success', messages, time));
     },
-    ERROR: (messages, time = null) => {
+    ERROR: (messages: MessageType, time: TimeType = null) => {
       setState(returnNewState('error', messages, time));
     },
     CLOSE: () => {
@@ -44,6 +66,6 @@ function NotificationProvider({ children }) {
       {children}
     </Provider>
   );
-}
+};
 
 export { store, NotificationProvider };

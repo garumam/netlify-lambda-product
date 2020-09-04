@@ -5,7 +5,19 @@ import { store } from '../../global/notificationStore';
 
 import { Container } from './styles';
 
-function Notification({ open, type, messages, time }) {
+interface ExpectedProps {
+  open: boolean;
+  type: string;
+  messages: string[];
+  time: number | null;
+}
+
+const Notification: React.FC<ExpectedProps> = ({
+  open,
+  type,
+  messages,
+  time,
+}) => {
   const notify = useContext(store);
 
   const closeMessage = () => {
@@ -13,7 +25,7 @@ function Notification({ open, type, messages, time }) {
   };
 
   useEffect(() => {
-    let timeoutRef = null;
+    let timeoutRef: number | null = null;
 
     if (time) {
       timeoutRef = setTimeout(closeMessage, time * 1000);
@@ -32,12 +44,12 @@ function Notification({ open, type, messages, time }) {
     >
       {type === 'success' ? <BsCheckCircle /> : <BiMessageError />}
       <div>
-        {messages.map((message, index) => (
+        {messages?.map((message, index) => (
           <p key={index}>{message}</p>
         ))}
       </div>
     </Container>
   );
-}
+};
 
 export default Notification;

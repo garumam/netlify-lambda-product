@@ -2,22 +2,33 @@ import React, { useState } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { MdClose } from 'react-icons/md';
 import { toRealFormat } from '../../utils/formatPrice';
+import { IProduct } from '../../interfaces/IProduct';
 
 import { Container, QtdFieldSet } from './styles';
 
-function CartItem({ product, handleRemove, handleReservedQtd }) {
+interface ExpectedProps {
+  product: IProduct;
+  handleRemove(): void;
+  handleReservedQtd(qtd: number): void;
+}
+
+const CartItem: React.FC<ExpectedProps> = ({
+  product,
+  handleRemove,
+  handleReservedQtd,
+}) => {
   const history = useHistory();
   const [qtd, setQtd] = useState('');
 
-  const handleQtdChange = (e) => {
-    let newQtd = Number(e.target.value.trim()).toString();
+  const handleQtdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let newQtd = Number(e.target.value.trim());
 
     if (!(newQtd >= 0 && newQtd <= product.qtd)) {
       newQtd = product.qtd;
     }
 
     handleReservedQtd(newQtd);
-    setQtd(newQtd);
+    setQtd(newQtd.toString());
   };
 
   return (
@@ -54,6 +65,6 @@ function CartItem({ product, handleRemove, handleReservedQtd }) {
       </h3>
     </Container>
   );
-}
+};
 
 export default CartItem;

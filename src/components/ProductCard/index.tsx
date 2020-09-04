@@ -3,10 +3,15 @@ import { Link, useHistory } from 'react-router-dom';
 import { store, cartActions } from '../../global/cartStore';
 import { toRealFormat } from '../../utils/formatPrice';
 import AddToCartButton from '../AddToCartButton';
+import { IProduct } from '../../interfaces/IProduct';
 
 import { Container } from './styles';
 
-function ProductCard({ product }) {
+interface ExpectedProps {
+  product: IProduct;
+}
+
+const ProductCard: React.FC<ExpectedProps> = ({ product }) => {
   const { dispatch } = useContext(store);
   const history = useHistory();
 
@@ -34,6 +39,6 @@ function ProductCard({ product }) {
       <AddToCartButton productId={product.id} />
     </Container>
   );
-}
+};
 
 export default ProductCard;

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const Container = styled.div`
+export const Container = styled.div<{ type: string }>`
   cursor: pointer;
   display: flex;
   z-index: 100;

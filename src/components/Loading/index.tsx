@@ -2,7 +2,11 @@ import React from 'react';
 
 import { Container, Spin } from './styles';
 
-function Loading({ loading }) {
+interface ExpectedProps {
+  loading: boolean;
+}
+
+const Loading: React.FC<ExpectedProps> = ({ loading }) => {
   return (
     <Container style={!loading ? { opacity: 0, pointerEvents: 'none' } : null}>
       <Spin>
@@ -13,6 +17,6 @@ function Loading({ loading }) {
       </Spin>
     </Container>
   );
-}
+};
 
 export default Loading;

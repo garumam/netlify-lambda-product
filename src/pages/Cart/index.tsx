@@ -12,15 +12,20 @@ import {
   calculateTotalPriceOfProducts,
   prepareProductsToFetch,
 } from '../../utils/functionsToManipulateProducts';
+import { IProduct } from '../../interfaces/IProduct';
 
 import { Container, ButtonGroup } from './styles';
+
+interface ApiRes {
+  products: IProduct[];
+}
 
 function Cart() {
   const history = useHistory();
   const { state: cartState, dispatch } = useContext(store);
   const notify = useContext(notifyStore);
 
-  const [products, setProducts] = useState(null);
+  const [products, setProducts] = useState<IProduct[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -28,7 +33,7 @@ function Cart() {
     setIsLoading(true);
     async function getProductsInCart() {
       try {
-        const res = await api.post('/products-by-ids', {
+        const res: ApiRes = await api.post('/products-by-ids', {
           productIds: cartState,
         });
 
@@ -47,12 +52,12 @@ function Cart() {
     };
   }, []);
 
-  const handleRemoveFromCart = (id) => {
+  const handleRemoveFromCart = (id: string) => {
     dispatch(cartActions.REMOVE(id));
     setProducts(products.filter((p) => p.id !== id));
   };
 
-  const handleReservedQtd = (id, reservedQtd) => {
+  const handleReservedQtd = (id: string, reservedQtd: number) => {
     const updatedProducts = products.map((p) => {
       if (p.id === id) {
         p.reservedQtd = reservedQtd;
@@ -78,10 +83,14 @@ function Cart() {
       notify.MESSAGE('Selecione a quantidade para cada produto!', 5);
     } else {
       setIsLoading(true);
+
       try {
-        const res = await api.post('/sales-store', {
-          products: purchaseProducts,
-        });
+        const res: { message: string | string[] } = await api.post(
+          '/sales-store',
+          {
+            products: purchaseProducts,
+          }
+        );
 
         dispatch(cartActions.CLEARALL());
         setProducts([]);

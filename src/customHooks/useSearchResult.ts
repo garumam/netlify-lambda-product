@@ -1,9 +1,14 @@
 import { useState, useEffect, useContext } from 'react';
 import { store } from '../global/notificationStore';
 import api from '../services/api';
+import { IProduct } from '../interfaces/IProduct';
 
-export function useSearchResult(search = '') {
-  const [products, setProducts] = useState(null);
+interface ApiRes {
+  products: IProduct[];
+}
+
+export function useSearchResult(search = ''): [IProduct[] | null, boolean] {
+  const [products, setProducts] = useState<IProduct[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const notify = useContext(store);
@@ -13,7 +18,7 @@ export function useSearchResult(search = '') {
     setIsLoading(true);
     async function getProducts() {
       try {
-        const res = await api.get('/products-all', {
+        const res: ApiRes = await api.get('/products-all', {
           params: {
             search,
           },

@@ -6,8 +6,13 @@ import { store, cartActions } from '../../global/cartStore';
 import { store as notifyStore } from '../../global/notificationStore';
 import api from '../../services/api';
 import Loading from '../../components/Loading';
+import { IProduct } from '../../interfaces/IProduct';
 
 import { Container, ProductContainer, ProductDetail } from './styles';
+
+interface ApiRes {
+  product: IProduct;
+}
 
 function ProductInfo() {
   const [product, setProduct] = useState(null);
@@ -22,7 +27,7 @@ function ProductInfo() {
     setIsLoading(true);
     async function getProduct() {
       try {
-        const res = await api.get('/products-show', {
+        const res: ApiRes = await api.get('/products-show', {
           params: {
             id,
           },

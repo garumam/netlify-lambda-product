@@ -4,7 +4,7 @@ import Footer from './components/Footer';
 import { CartProvider } from './global/cartStore';
 import { NotificationProvider } from './global/notificationStore';
 
-function AppLayout(props) {
+const AppLayout: React.FC = (props) => {
   return (
     <>
       <NotificationProvider>
@@ -16,6 +16,6 @@ function AppLayout(props) {
       <Footer />
     </>
   );
-}
+};
 
 export default AppLayout;

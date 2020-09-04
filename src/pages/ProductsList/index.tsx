@@ -10,13 +10,13 @@ function ProductsList() {
   const [search, setSearch] = useState('');
   const [products, isLoading] = useSearchResult(search);
 
-  const searchInput = useRef();
+  const searchInput = useRef<HTMLInputElement>();
 
   const handleSeach = () => {
     setSearch(searchInput.current.value.trim());
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleSeach();
     }

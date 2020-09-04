@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   target: 'web',
-  entry: path.resolve(__dirname, 'src', 'index.js'),
+  entry: path.resolve(__dirname, 'src', 'index.tsx'),
   output: {
     path: path.resolve(__dirname, 'build'),
     publicPath: '/',
@@ -15,15 +15,19 @@ module.exports = {
     historyApiFallback: true,
     proxy: {
       '/.netlify': {
-        target: 'http://localhost:9000',
+        target: 'http://[::1]:9000',
         pathRewrite: { '^/.netlify/functions': '' },
+        secure: false,
       },
     },
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js'],
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(ts|js)x?$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',

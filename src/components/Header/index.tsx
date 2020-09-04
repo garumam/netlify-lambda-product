@@ -10,7 +10,7 @@ function Header() {
   const history = useHistory();
   const { state } = useContext(store);
 
-  const goTo = (path) => {
+  const goTo = (path: string) => {
     history.push(path);
   };
 

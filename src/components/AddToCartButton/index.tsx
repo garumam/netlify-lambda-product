@@ -5,7 +5,11 @@ import { store, cartActions } from '../../global/cartStore';
 
 import { Container } from './styles';
 
-function AddToCartButton({ productId }) {
+interface ExpectedProps {
+  productId: string;
+}
+
+const AddToCartButton: React.FC<ExpectedProps> = ({ productId }) => {
   const { state: cartState, dispatch } = useContext(store);
 
   const isActive = useMemo(() => {
@@ -25,11 +29,10 @@ function AddToCartButton({ productId }) {
       title="Adicionar/Remover do carrinho!"
       onClick={handleCartStore}
       className={isActive && 'active'}
-      onClick={handleCartStore}
     >
       {isActive ? <MdRemoveShoppingCart /> : <FaCartPlus />}
     </Container>
   );
-}
+};
 
 export default AddToCartButton;
