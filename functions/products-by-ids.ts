@@ -3,6 +3,7 @@ import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
 import Database from './SearchContext/database';
 import HC from './utils/http-code';
 import { CustomResponse } from './utils/CustomInterfaces';
+import ProductValidations from './SearchContext/validators/ProductValidations';
 
 interface EventBody {
   productIds: string[];
@@ -24,7 +25,18 @@ const handler: Handler<APIGatewayEvent, CustomResponse> = async (
   }
 
   try {
-    const { productIds }: EventBody = JSON.parse(event.body);
+    const body: EventBody = JSON.parse(event.body);
+
+    const validator = await ProductValidations.getByIds(body);
+
+    if (validator.error) {
+      return {
+        statusCode: HC.ERROR.BADREQUEST,
+        body: JSON.stringify({
+          error: validator.messages,
+        }),
+      };
+    }
 
     if (conn == null) {
       conn = (await new Database().init()).connection;
@@ -34,7 +46,7 @@ const handler: Handler<APIGatewayEvent, CustomResponse> = async (
 
     const products = await Products.find({
       isActive: true,
-      _id: productIds,
+      _id: body.productIds,
     });
 
     return {
@@ -42,6 +54,7 @@ const handler: Handler<APIGatewayEvent, CustomResponse> = async (
       body: JSON.stringify({ products }),
     };
   } catch (err) {
+    console.log('CHEGOU AQUI', err);
     return {
       statusCode: HC.ERROR.INTERNALERROR,
       body: JSON.stringify({ error: 'Something went wrong' }),

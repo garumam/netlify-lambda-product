@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Transaction } from 'sequelize';
 import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
 import Database from './SaleContext/database';
 import HC from './utils/http-code';
@@ -7,6 +7,7 @@ import Payment from './SaleContext/models/Payment';
 import PaymentApiAdapter from './SaleContext/adapters/PaymentApiAdapter';
 import ProductApiAdapter from './SaleContext/adapters/ProductApiAdapter';
 import { CustomResponse } from './utils/CustomInterfaces';
+import SaleValidations from './SaleContext/validators/SaleValidations';
 
 interface EventBody {
   products: ProductsToReserve[];
@@ -27,23 +28,27 @@ const handler: Handler<APIGatewayEvent, CustomResponse> = async (
     };
   }
 
-  if (conn == null) {
-    conn = (await new Database().init()).connection;
-  }
-
-  const t = await conn.transaction();
+  let t: Transaction;
 
   try {
     const data: EventBody = JSON.parse(event.body);
 
-    if (!data.products || !Array.isArray(data.products)) {
+    const validator = await SaleValidations.store(data);
+
+    if (validator.error) {
       return {
         statusCode: HC.ERROR.BADREQUEST,
         body: JSON.stringify({
-          error: "Array of 'products' is required on body",
+          error: validator.messages,
         }),
       };
     }
+
+    if (conn == null) {
+      conn = (await new Database().init()).connection;
+    }
+
+    t = await conn.transaction();
 
     const sale = await Sale.create(
       {

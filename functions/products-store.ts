@@ -2,9 +2,11 @@ import mongoose from 'mongoose';
 import { Handler, Context, APIGatewayEvent } from 'aws-lambda';
 import Database from './SearchContext/database';
 import HC from './utils/http-code';
-import { CustomResponse, ProductParams } from './utils/CustomInterfaces';
+import { CustomResponse } from './utils/CustomInterfaces';
+import { ProductDTO } from './SearchContext/DTO/ProductDTO';
+import ProductValidations from './SearchContext/validators/ProductValidations';
 
-interface EventBody extends ProductParams {}
+interface EventBody extends ProductDTO {}
 
 let conn: mongoose.Connection | null = null;
 
@@ -22,11 +24,22 @@ const handler: Handler<APIGatewayEvent, CustomResponse> = async (
   }
 
   try {
+    const body: EventBody = JSON.parse(event.body);
+
+    const validator = await ProductValidations.store(body);
+
+    if (validator.error) {
+      return {
+        statusCode: HC.ERROR.BADREQUEST,
+        body: JSON.stringify({
+          error: validator.messages,
+        }),
+      };
+    }
+
     if (conn == null) {
       conn = (await new Database().init()).connection;
     }
-
-    const body: EventBody = JSON.parse(event.body);
 
     const Products = conn.model('Products');
 

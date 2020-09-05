@@ -1,12 +1,10 @@
 import { Sequelize, Model, DataTypes, Optional, Transaction } from 'sequelize';
 import Product from './Product';
 import HC from '../../utils/http-code';
+import { ProductDTO } from '../DTO/ProductDTO';
 
-export interface ProductsToReserve {
-  name: string;
-  code: string;
-  qtd: number;
-}
+export interface ProductsToReserve
+  extends Pick<ProductDTO, 'code' | 'name' | 'qtd'> {}
 
 interface ReserveProductsMethodParams {
   productsList: ProductsToReserve[];

@@ -3,6 +3,7 @@ import { Handler, Context } from 'aws-lambda';
 import Database from './SearchContext/database';
 import HC from './utils/http-code';
 import { CustomResponse, CustomEvent } from './utils/CustomInterfaces';
+import ProductValidations from './SearchContext/validators/ProductValidations';
 
 interface ExpectedParams {
   search: string;
@@ -24,7 +25,20 @@ const handler: Handler<CustomEvent<ExpectedParams>, CustomResponse> = async (
   }
 
   try {
-    const search = event.queryStringParameters.search || '';
+    const query = event.queryStringParameters;
+
+    const validator = await ProductValidations.all(query);
+
+    if (validator.error) {
+      return {
+        statusCode: HC.ERROR.BADREQUEST,
+        body: JSON.stringify({
+          error: validator.messages,
+        }),
+      };
+    }
+
+    const search = query.search ?? '';
 
     if (conn == null) {
       conn = (await new Database().init()).connection;

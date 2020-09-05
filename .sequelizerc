@@ -1,7 +1,7 @@
 const { resolve } = require('path');
 
 module.exports = {
-  config: resolve(__dirname, 'functionsts', 'SaleContext', 'config', 'database.js'),
-  'models-path': resolve(__dirname, 'functionsts', 'SaleContext', 'models'),
-  'migrations-path': resolve(__dirname, 'functionsts', 'SaleContext', 'database', 'migrations'),
+  config: resolve(__dirname, 'functions', 'SaleContext', 'config', 'database.js'),
+  'models-path': resolve(__dirname, 'functions', 'SaleContext', 'models'),
+  'migrations-path': resolve(__dirname, 'functions', 'SaleContext', 'database', 'migrations'),
 };

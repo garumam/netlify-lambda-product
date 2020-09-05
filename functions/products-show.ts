@@ -3,6 +3,7 @@ import { Handler, Context } from 'aws-lambda';
 import Database from './SearchContext/database';
 import HC from './utils/http-code';
 import { CustomResponse, CustomEvent } from './utils/CustomInterfaces';
+import ProductValidations from './SearchContext/validators/ProductValidations';
 
 interface ExpectedParams {
   id: string;
@@ -16,9 +17,7 @@ const handler: Handler<CustomEvent<ExpectedParams>, CustomResponse> = async (
 ) => {
   context.callbackWaitsForEmptyEventLoop = false;
 
-  const id = event.queryStringParameters.id;
-
-  if (event.httpMethod !== 'GET' || !id) {
+  if (event.httpMethod !== 'GET') {
     return {
       statusCode: HC.ERROR.NOTFOUND,
       body: JSON.stringify({ error: 'Not Found' }),
@@ -26,6 +25,19 @@ const handler: Handler<CustomEvent<ExpectedParams>, CustomResponse> = async (
   }
 
   try {
+    const id = event.queryStringParameters.id;
+
+    const validator = await ProductValidations.show(id);
+
+    if (validator.error) {
+      return {
+        statusCode: HC.ERROR.BADREQUEST,
+        body: JSON.stringify({
+          error: validator.messages,
+        }),
+      };
+    }
+
     if (conn == null) {
       conn = (await new Database().init()).connection;
     }
