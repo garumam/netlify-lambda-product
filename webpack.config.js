@@ -62,6 +62,10 @@ module.exports = {
           from: path.resolve(__dirname, 'public', '_redirects'),
           to: path.resolve(__dirname, 'build'),
         },
+        {
+          from: path.resolve(__dirname, 'public', 'app-ads.txt'),
+          to: path.resolve(__dirname, 'build'),
+        },
       ],
     }),
   ],
